@@ -1,0 +1,165 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{fibeamer/theme/hda/%
+  beamercolorthemefibeamer-hda}[2016/05/06]
+\newenvironment{darkframes}{}{}
+\mode<presentation>
+
+\def\fibeamer@logo{logo-\fibeamer@faculty}
+\def\fibeamer@fallbackLogo{logo}
+
+% -- START Colors
+\definecolor{fibeamer@black}{HTML}{000000}
+\definecolor{fibeamer@white}{HTML}{FFFFFF}
+\definecolor{fibeamer@gray}{HTML}{EEEEEE}
+\definecolor{fibeamer@red}{HTML}{C00A35}
+
+% Include faculty specific colors
+\IfFileExists{fibeamer/theme/hda/colors-\fibeamer@faculty.sty}{\input{fibeamer/theme/hda/colors-\fibeamer@faculty.sty}}{\input{fibeamer/theme/hda/colors.sty}}
+
+% \colorprovide sets color only if it has not been set before
+\newcommand{\colorprovide}[2]{%
+	\@ifundefined{\string\color@#1}{\colorlet{#1}{#2}}{}
+}
+
+\colorprovide{fibeamer@logoBarColor}{fibeamer@white}
+\colorprovide{fibeamer@titleColor}{fibeamer@primary}
+\colorprovide{fibeamer@textColor}{fibeamer@black}
+
+\colorprovide{fibeamer@primaryLight}{fibeamer@primary!30!fibeamer@white}
+\colorprovide{fibeamer@primaryDark}{fibeamer@primary!60!fibeamer@black}
+\colorprovide{fibeamer@subtitleColor}{fibeamer@textColor!75!fibeamer@white}
+
+% Text colors
+\setbeamercolor{title}{fg=fibeamer@frontMatterTextColor} % , bg=fibeamer@primary
+
+%% Background gradients
+\colorlet{fibeamer@dark@backgroundInner}{fibeamer@primary}
+\colorlet{fibeamer@dark@backgroundOuter}{fibeamer@primary}
+\colorlet{fibeamer@light@backgroundInner}{fibeamer@white}
+\colorlet{fibeamer@light@backgroundOuter}{fibeamer@white}
+\renewenvironment{darkframes}{%
+	\begingroup
+	\fibeamer@darktrue
+	%% Structures
+	\setbeamercolor*{frametitle}{fg=fibeamer@secondary}
+	\setbeamercolor*{framesubtitle}{fg=fibeamer@white}
+	%% Text
+	\setbeamercolor*{normal text}{fg=fibeamer@white, bg=fibeamer@primary}
+	\setbeamercolor*{structure}{fg=fibeamer@white, bg=fibeamer@primary}
+	\setbeamercolor*{alerted text}{fg=fibeamer@primaryLight}
+	%% Items, footnotes and links
+	\setbeamercolor*{item}{fg=fibeamer@secondary}
+	\setbeamercolor*{footnote mark}{fg=fibeamer@secondary}
+	\hypersetup{urlcolor=fibeamer@secondary}
+	%% Blocks
+	\setbeamercolor*{block title}{%
+		fg=fibeamer@white, bg=fibeamer@primaryLight}
+	\setbeamercolor*{block title example}{%
+		fg=fibeamer@white, bg=fibeamer@primaryLight}
+	\setbeamercolor*{block title alerted}{%
+		fg=fibeamer@primaryDark, bg=fibeamer@primaryLight}
+	\setbeamercolor*{block body}{%
+		fg=fibeamer@primary,
+		bg=fibeamer@gray!15!fibeamer@white}
+	\usebeamercolor*{normal text}
+	% Code listings
+	\lstset{%
+		commentstyle=\color{green!30!fibeamer@white},
+		keywordstyle=\color{fibeamer@secondary},
+		stringstyle=\color{fibeamer@red!30!fibeamer@white}}f
+}{%
+	\endgroup}
+%% Structures
+\setbeamercolor{frametitle}{fg=fibeamer@titleColor}
+\setbeamercolor{framesubtitle}{fg=fibeamer@subtitleColor}
+%% Text
+\setbeamercolor{normal text}{fg=fibeamer@textColor, bg=fibeamer@white}
+\setbeamercolor{structure}{fg=fibeamer@textColor, bg=fibeamer@white}
+\setbeamercolor{alerted text}{fg=fibeamer@red}
+\addtobeamertemplate{block begin}{%
+	\iffibeamer@dark % alerted text in plain block at dark slides
+	\setbeamercolor{alerted text}{fg=fibeamer@primaryLight}%
+	\fi}{}
+%% Items, footnotes and links
+\setbeamercolor*{item}{fg=fibeamer@textColor}
+\setbeamercolor*{footnote mark}{fg=fibeamer@textColor}
+\hypersetup{urlcolor=fibeamer@textColor}
+%% Blocks
+\setbeamercolor{block title}{%
+	fg=fibeamer@white, bg=fibeamer@textColor}
+\setbeamercolor{block title example}{%
+	fg=fibeamer@white, bg=fibeamer@textColor}
+\setbeamercolor{block title alerted}{%
+	fg=fibeamer@white, bg=fibeamer@red}
+\setbeamercolor{block body}{%
+	fg=fibeamer@textColor, bg=fibeamer@gray!20!fibeamer@white}
+% -- END Colors
+
+  \RequirePackage{listings}
+  \RequirePackage{ifthen}
+  \RequirePackage{tikz}
+  \newif\iffibeamer@dark\fibeamer@darkfalse
+  \defbeamertemplate*{background canvas}{fibeamer}{%
+    \ifthenelse{%
+      \boolean{fibeamer@dark} \OR \c@framenumber=0
+    }{%
+      \begin{tikzpicture}
+        \clip (0,\fibeamer@lengths@clipbottom) rectangle
+          (\paperwidth,\fibeamer@lengths@cliptop);
+        \path [inner color = fibeamer@dark@backgroundInner,
+               outer color = fibeamer@dark@backgroundOuter]
+          (0,0) rectangle (\paperwidth,\paperwidth);
+      \end{tikzpicture}
+    }{%
+      \begin{tikzpicture}
+        \clip (0,\fibeamer@lengths@clipbottom) rectangle
+          (\paperwidth,\fibeamer@lengths@cliptop);
+        \path [inner color = fibeamer@light@backgroundInner,
+               outer color = fibeamer@light@backgroundOuter]
+          (0,0) rectangle (\paperwidth,\paperwidth);
+      \end{tikzpicture}
+    }}
+  \setbeamercolor{qed symbol}{%
+    use=block body,
+    fg=block body.fg,
+    bg=block body.bg}
+  \hypersetup{colorlinks,linkcolor=}
+    
+  \renewcommand\fibeamer@includeLogo[1][]{{
+  		% See <http://tex.stackexchange.com/a/39987/70941>.
+  		\patchcmd{\Gin@ii}% Make `\includegraphics` use `@fallbackLogo`.
+  		{\begingroup}% <search>
+  		{\begingroup\renewcommand{\@latex@error}[2]{%
+  				\includegraphics[width=0.25\paperwidth]{fibeamer/logo/\fibeamer@university/\fibeamer@fallbackLogo}}}% <replace>
+  		{}% <success>
+  		{}% <failure>
+  	
+  	\begin{tikzpicture}[remember picture,overlay]
+  	\coordinate (SW) at (current page.south west);
+  	\coordinate (SE) at (current page.south east);
+  	\coordinate (NW) at (current page.north west);
+  	\coordinate (NE) at (current page.north east);
+  	
+  	\fill[fibeamer@logoBarColor] ($(NW)!0.1!(SW)$) rectangle ($(NE)!0.25!(SE)$);
+  	\node at (0,-1.1) {\includegraphics[width=0.25\paperwidth]{fibeamer/logo/\fibeamer@university/\fibeamer@logo}};
+  	
+  	\end{tikzpicture}
+  }}
+\lstset{%
+	basicstyle=\footnotesize\ttfamily,
+	breakatwhitespace=false,
+	breaklines=true,
+	commentstyle=\color{green!60!fibeamer@black},
+	extendedchars=true,
+	keywordstyle=\color{fibeamer@primary},
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	stringstyle=\color{violet}}
+\mode
+<all>
+\endinput
+
+%%
+%% End of file `beamercolorthemefibeamer-mu.sty'.
+
